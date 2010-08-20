@@ -6,7 +6,7 @@
 #This class alows runners to register themselves (whenever they call acts_as_runner)
 #so they can be used later
 class RunnersHandler
-  @@runner_classes = [TavernaEnactor]
+  @@runner_classes = [TavernaEnactor,MeandreInfrastructure]
   
   def self.runner_classes
     @@runner_classes

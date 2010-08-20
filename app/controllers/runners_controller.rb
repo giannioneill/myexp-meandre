@@ -53,6 +53,7 @@ class RunnersController < ApplicationController
         flash[:notice] = "Your Runner of type '#{runner_class.name}' has been successfully registered."
         format.html { redirect_to runner_url(@runner) }
       else
+        @runners = RunnersHandler.runner_classes
         format.html { render :action => "new" }
       end
     end
@@ -98,7 +99,7 @@ protected
   def update_runner!(runner)
     success = true
 
-    @runner.update_details(params[:runner])
+    @runner.update_details(params["runner_#{@runner.class.name}".to_sym])
     
     if params[:assign_to_group]
       network = Network.find(params[:assign_to_group_id])
