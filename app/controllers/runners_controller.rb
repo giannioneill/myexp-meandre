@@ -117,8 +117,12 @@ protected
   end
 
   def find_runners
-    @personal_runners = TavernaEnactor.find_by_contributor('User', current_user.id)
-    @group_runners = TavernaEnactor.find_by_groups(current_user)
+    @personal_runners = []
+    @group_runners = []
+    RunnersHandler.runner_classes.each do |c|
+      @personal_runners += c.find_by_contributor('User', current_user.id)
+      @group_runners += c.find_by_groups(current_user)
+    end
   end
   
   def find_runner_auth
