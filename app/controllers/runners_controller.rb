@@ -39,17 +39,18 @@ class RunnersController < ApplicationController
   end
 
   def new
-    @runner = TavernaEnactor.new
+    @runners = RunnersHandler.runner_classes
     respond_to do |format|
       format.html # new.rhtml
     end
   end
 
   def create
-    @runner = TavernaEnactor.new
+    runner_class = RunnersHandler.get_by_name(params[:runner_type])
+    @runner = runner_class.new
     respond_to do |format|
       if update_runner!(@runner)
-        flash[:notice] = "Your Runner of type 'Taverna Enactor' has been successfully registered."
+        flash[:notice] = "Your Runner of type '#{runner_class.name}' has been successfully registered."
         format.html { redirect_to runner_url(@runner) }
       else
         format.html { render :action => "new" }
@@ -96,12 +97,8 @@ protected
 
   def update_runner!(runner)
     success = true
-    
-    runner.title = params[:runner][:title] if params[:runner][:title]
-    runner.description = params[:runner][:description] if params[:runner][:description]
-    runner.url = params[:runner][:url] if params[:runner][:url]
-    runner.username = params[:runner][:username] if params[:runner][:username]
-    runner.password = params[:runner][:password] if params[:runner][:password]
+
+    @runner.update_details(params[:runner])
     
     if params[:assign_to_group]
       network = Network.find(params[:assign_to_group_id])

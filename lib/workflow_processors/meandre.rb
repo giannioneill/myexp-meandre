@@ -61,9 +61,9 @@ module WorkflowProcessors
 
     def initialize(workflow_definition)
       super(workflow_definition)
-	  i = File.new("/tmp/meandre_zip",'w+');
+	  i = TempFile.new("meandre_zip");
 	  i.write(workflow_definition);
-	  i.close();
+	  i.close(false);
 	  rdf = ""
 	  Zip::ZipFile.open(i.path) do |zipfile|
 			rdf = zipfile.read("repository/repository.ttl")

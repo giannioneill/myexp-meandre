@@ -163,6 +163,14 @@ class TavernaEnactor < ActiveRecord::Base
       return 'unknown'
     end
   end
+
+  def update_details(details)
+    self.title = details[:title] if details[:title]
+    self.description = details[:description] if details[:description]
+    self.url = details[:url] if details[:url]
+    self.username = details[:username] if details[:username]
+    self.password = details[:password] if details[:password]
+  end
   
 protected
   
