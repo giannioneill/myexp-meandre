@@ -22,29 +22,7 @@ class TavernaEnactor < ActiveRecord::Base
   
   encrypts :password, :mode => :symmetric, :key => Conf.sym_encryption_key
   
-  def self.find_by_contributor(contributor_type, contributor_id)
-    TavernaEnactor.find(:all, :conditions => ["contributor_type = ? AND contributor_id = ?", contributor_type, contributor_id])
-  end
-  
-  def self.find_by_groups(user)
-    return nil unless user.is_a?(User)
-    
-    runners = []
-    user.all_networks.each do |n|
-      runners = runners + TavernaEnactor.find_by_contributor('Network', n.id)
-    end
-    
-    return runners
-  end
-  
-  def self.for_user(user)
-    return [ ] if user.nil? or !user.is_a?(User)
-    
-    # Return the runners that are owned by the user, and are owned by groups that the user is a part of.
-    runners = TavernaEnactor.find_by_contributor('User', user.id)
-    return runners + TavernaEnactor.find_by_groups(user)
-  end
-  
+ 
   def service_valid?
     service_client.service_valid?
   end

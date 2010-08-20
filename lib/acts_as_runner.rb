@@ -21,6 +21,30 @@ module Jits
           end
           include Jits::Acts::Runner::InstanceMethods
         end
+
+        def find_by_contributor(contributor_type, contributor_id)
+          find(:all, :conditions => ["contributor_type = ? AND contributor_id = ?", contributor_type, contributor_id])
+        end
+  
+        def find_by_groups(user)
+          return nil unless user.is_a?(User)
+          
+          runners = []
+          user.all_networks.each do |n|
+            runners = runners + find_by_contributor('Network', n.id)
+          end
+          
+          return runners
+        end
+        
+        def for_user(user)
+          return [ ] if user.nil? or !user.is_a?(User)
+          
+          # Return the runners that are owned by the user, and are owned by groups that the user is a part of.
+          runners = find_by_contributor('User', user.id)
+          return runners + find_by_groups(user)
+        end
+     
       end
 
       module SingletonMethods
