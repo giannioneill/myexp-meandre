@@ -14,14 +14,23 @@
   <!-- Workflow File -->
 	
 	<p class="step_text">1. Meandre Server</p>
-
 	<center>
+    <%=select_tag('runner', options_for_select(@runners.map{|x| [x.title, x.id]}))%>
+    </select>
 	</center>
 
   <p class="step_text">2. Select Workflow</p>
 
 	<center>
+	<%=select_tag('workflow', options_for_select([['Workflow1', 1]]))%>
 	</center>
+
+  <%= observe_field :runner, :url => { :action => :get_available },
+    :update => :suggest,
+    :with => 'runner',
+    :update => 'workflow'
+  %>
+
   
   <br />
 	

@@ -96,6 +96,7 @@ ActionController::Routing::Routes.draw do |map|
 
   # For importing Meandre workflows
   map.connect 'workflows/import', :action=>'import', :controller=>'workflows'
+  map.connect 'workflows/get_available', :action=>'get_available', :controller=>'workflows'
 
   # workflows (downloadable)
   map.resources :workflows, 

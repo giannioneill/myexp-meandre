@@ -3,11 +3,14 @@
 # Copyright (c) 2007 University of Manchester and the University of Southampton.
 # See license.txt for details.
 
+require 'curb'
+require 'json'
+
 class WorkflowsController < ApplicationController
   before_filter :login_required, :except => [:index, :show, :download, :named_download, :statistics, :launch, :search]
   
   before_filter :find_workflows_rss, :only => [:index]
-  before_filter :find_workflow_auth, :except => [:search, :index, :new, :create, :import]
+  before_filter :find_workflow_auth, :except => [:search, :index, :new, :create, :import, :get_available]
   
   before_filter :initiliase_empty_objects_for_new_pages, :only => [:new, :create, :new_version, :create_version]
   before_filter :set_sharing_mode_variables, :only => [:show, :new, :create, :edit, :update]
@@ -216,6 +219,24 @@ class WorkflowsController < ApplicationController
   # GET /workflows/import
   def import
     @new_workflow = Workflow.new
+    @runners = MeandreInfrastructure.find(:all)
+  end
+
+  # GET /workflows/get_available
+  def get_available
+    #this method contacts a Meandre server and lists all the 
+    #available workflows
+    #for use by the ajaxy bit of the import page
+    runner = MeandreInfrastructure.find_by_id(params[:runner])
+    c = Curl::Easy.new("#{runner.url}services/repository/list_flows.json")
+    c.userpwd = 'admin:admin'
+    c.perform
+    begin
+      @results = JSON.parse(c.body_str)
+    rescue
+      @results = []
+    end
+    render :partial=>'workflows/get_available', :object=>@results
   end
 
   # GET /workflows/1/new_version
