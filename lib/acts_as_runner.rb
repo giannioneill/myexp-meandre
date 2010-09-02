@@ -12,9 +12,6 @@ module Jits
 
       module ClassMethods
         def acts_as_runner
-          has_many :jobs,
-                   :as => :runner,
-                   :order => "updated_at DESC"
 
           class_eval do
             extend Jits::Acts::Runner::SingletonMethods

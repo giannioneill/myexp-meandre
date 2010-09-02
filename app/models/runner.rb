@@ -7,6 +7,7 @@ class Runner < ActiveRecord::Base
   belongs_to :contributor, :polymorphic => true
   validates_presence_of :contributor
   before_save :save_details
+  has_many :jobs
 
   @details=nil
 

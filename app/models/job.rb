@@ -9,7 +9,7 @@ class Job < ActiveRecord::Base
   validates_presence_of :runnable
   validates_presence_of :runnable_version
   
-  belongs_to :runner, :polymorphic => true
+  belongs_to :runner
   validates_presence_of :runner
   
   belongs_to :experiment

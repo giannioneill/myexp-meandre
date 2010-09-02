@@ -63,7 +63,6 @@ class JobsController < ApplicationController
     # Set defaults
     @job.title = Job.default_title(current_user)
     @job.runnable_type = "Workflow"
-    @job.runner_type = "TavernaEnactor"
     
     @job.runnable_id = params[:runnable_id] if params[:runnable_id]
     @job.runnable_version = params[:runnable_version] if params[:runnable_version]
@@ -72,13 +71,7 @@ class JobsController < ApplicationController
     # At the moment: only Taverna 1 workflows are allowed.
     if params[:runnable_id] 
       runnable = Workflow.find(:first, :conditions => ["id = ?", params[:runnable_id]])
-      if runnable 
-        if runnable.processor_class != WorkflowProcessors::TavernaScufl
-          flash[:error] = "Note that the workflow specified to run in this job is currently not supported and will prevent the job from being created. Specify a Taverna 1 workflow instead."
-        end
-        
-        # TODO: check that the specified version of the workflow exists so that a warning can be given.
-      else
+      unless runnable 
         flash[:error] = "Note that the workflow specified to run in this job does not exist. Specify a different workflow."
       end
     end
@@ -95,8 +88,10 @@ class JobsController < ApplicationController
     # Hard code certain values, for now.
     params[:job][:runnable_type] = 'Workflow'
     
+    logger.debug('CREATING JOB: '+YAML::dump(params));
     @job = Job.new(params[:job])
     @job.user = user
+    @job.runner_id = params[:job][:runner_id]
     
     # Check runnable is a valid and authorized one
     # (for now we can assume it's a Workflow)
