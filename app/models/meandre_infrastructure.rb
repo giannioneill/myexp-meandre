@@ -24,5 +24,9 @@ class MeandreInfrastructure < ActiveRecord::Base
     self.username = details[:username] if details[:username]
     self.password = details[:password] if details[:password]
   end
+
+  def verify_job_completed?(last_update)
+    false
+  end
   
 end

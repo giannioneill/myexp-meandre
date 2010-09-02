@@ -175,7 +175,7 @@ class Job < ActiveRecord::Base
   end
   
   def completed?
-    return runner.verify_job_completed?(self.last_status)
+    return runner.details.verify_job_completed?(self.last_status)
   end
   
   def finished?
