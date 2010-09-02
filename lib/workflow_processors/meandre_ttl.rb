@@ -9,7 +9,7 @@ module WorkflowProcessors
  require 'meandre_parser'
 
   class MeandreTtl < WorkflowProcessors::Interface
-    Mime::Type.register "application/octet-stream", :meandre
+    Mime::Type.register "application/octet-stream", :meandre_ttl
     
     # Begin Class Methods
     
@@ -20,7 +20,7 @@ module WorkflowProcessors
   
     # MUST be unique across all processors
     def self.display_name 
-      "Meandre"
+      "Meandre(TTL)"
     end
     
     def self.display_data_format
@@ -34,11 +34,11 @@ module WorkflowProcessors
     end
     
     def self.can_determine_type_from_file?
-      false
+      true
     end
     
     def self.recognised?(file)
-      false
+      true
     end
     
     def self.can_infer_metadata?
@@ -60,8 +60,8 @@ module WorkflowProcessors
 
     def initialize(workflow_definition)
       super(workflow_definition)
-	  @parser = MeandreParser.new(workflow_definition)
-	  @details = @parser.find_details
+      @parser = MeandreParser.new(workflow_definition)
+      @details = @parser.find_details
     end
 
     # End Object Initializer
@@ -72,11 +72,11 @@ module WorkflowProcessors
     # These provide more specific functionality for a given workflow definition, such as parsing for metadata and image generation.
     
     def get_title
-		return @details.name;
-	end
+		  return @details.name;
+    end
     
     def get_description
-		return @details.desc
+      return @details.desc
     end
     
     def get_preview_image
@@ -114,8 +114,8 @@ module WorkflowProcessors
     end
 
     def get_workflow_model_object
-		@parser
-	end
+      @parser
+    end
     
     def get_workflow_model_input_ports
     end

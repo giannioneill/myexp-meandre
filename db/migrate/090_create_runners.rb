@@ -9,8 +9,8 @@ class CreateRunners < ActiveRecord::Migration
       t.column :created_at, :datetime
       t.column :updated_at, :datetime
 
-      t.column :type, :string
-      t.column :type_id, :integer
+      t.column :details_type, :string
+      t.column :details_id, :integer
 
     end
   end

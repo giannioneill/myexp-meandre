@@ -340,7 +340,7 @@ protected
   end
   
   def check_runner_available
-    if TavernaEnactor.for_user(current_user).empty?
+    if Runner.for_user(current_user).empty?
       flash[:error] = "You cannot create a job until you have access to an enactment service registered as a runner here."
       respond_to do |format|
         format.html { redirect_to new_runner_url }

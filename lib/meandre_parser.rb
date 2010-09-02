@@ -181,6 +181,7 @@ class MeandreParser
 				predicate_uri_string = Redland::librdf_uri_to_string predicate_uri
 				literal = Redland::librdf_node_get_literal_value object
 				props[predicate_uri_string] = literal
+        #logger.debug("Got LITERAL -- "+literal)
 			end
 			Redland::librdf_stream_next stream
 		end

@@ -74,7 +74,7 @@
 				<p>
 					<b>Runner to use: </b>
 					<%= form.select :runner_id, 
-													TavernaEnactor.for_user(current_user).collect {|r| [ r.title, r.id ]},
+													Runner.for_user(current_user).collect {|r| [ r.title, r.id ]},
 													{ :prompt => '--- Select Runner ---' }, 
 													{ :style => "vertical-align: middle;" } %>
 					<%= form.hidden_field :runner_type %>

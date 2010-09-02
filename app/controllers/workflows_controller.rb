@@ -15,7 +15,7 @@ class WorkflowsController < ApplicationController
   before_filter :initiliase_empty_objects_for_new_pages, :only => [:new, :create, :new_version, :create_version]
   before_filter :set_sharing_mode_variables, :only => [:show, :new, :create, :edit, :update]
   
-  before_filter :check_file_size, :only => [:create, :create_version]
+  #before_filter :check_file_size, :only => [:create, :create_version]
   before_filter :check_custom_workflow_type, :only => [:create, :create_version]
   
   before_filter :check_is_owner, :only => [:edit, :update]
@@ -219,7 +219,7 @@ class WorkflowsController < ApplicationController
   # GET /workflows/import
   def import
     @new_workflow = Workflow.new
-    @runners = MeandreInfrastructure.find(:all)
+    @runners = Runner.find(:all, :conditions => {:details_type=>"MeandreInfrastructure"})
   end
 
   # GET /workflows/get_available
@@ -227,8 +227,8 @@ class WorkflowsController < ApplicationController
     #this method contacts a Meandre server and lists all the 
     #available workflows
     #for use by the ajaxy bit of the import page
-    runner = MeandreInfrastructure.find_by_id(params[:runner])
-    c = Curl::Easy.new("#{runner.url}services/repository/list_flows.json")
+    runner = Runner.find_by_id(params[:runner])
+    c = Curl::Easy.new("#{runner.details.url}services/repository/list_flows.json")
     c.userpwd = 'admin:admin'
     c.perform
     begin
@@ -237,6 +237,14 @@ class WorkflowsController < ApplicationController
       @results = []
     end
     render :partial=>'workflows/get_available', :object=>@results
+  end
+
+  def get_workflow_description(runner_id, workflow_uri)
+    runner = Runner.find(runner_id)
+    c = Curl::Easy.new("#{runner.details.url}services/repository/describe.ttl?uri=#{workflow_uri}")
+    c.userpwd = 'admin:admin'
+    c.perform
+    c.body_str
   end
 
   # GET /workflows/1/new_version
@@ -253,15 +261,23 @@ class WorkflowsController < ApplicationController
 
   # POST /workflows
   def create
-    file = params[:workflow][:file]
-    
     @workflow = Workflow.new
     @workflow.contributor = current_user
     @workflow.last_edited_by = current_user.id
     @workflow.license_id = params[:workflow][:license_id] == "0" ? nil : params[:workflow][:license_id]
-    @workflow.content_blob = ContentBlob.new(:data => file.read)
+
+    file = params[:workflow][:file]
+    if !file 
+      file = Tempfile.new('workflow_import')
+      file.extend(FileUpload)
+      desc = get_workflow_description(params[:runner], params[:workflow_uri])
+      file.write(desc)
+      file.original_filename = 'hack.ttl'
+      @workflow.content_blob = ContentBlob.new(:data => desc)
+    else
+      @workflow.content_blob = ContentBlob.new(:data => file.read)
+    end
     @workflow.file_ext = file.original_filename.split(".").last.downcase
-    
     file.rewind
     
     # Check whether user has selected to infer metadata or provided custom metadata...

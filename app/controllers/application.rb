@@ -164,7 +164,7 @@ class ApplicationController < ActionController::Base
   end
 
   def update_policy(contributable, params)
-
+    logger.debug('params RECV: '+YAML::dump(params))
     # this method will return an error message is something goes wrong (empty string in case of success)
     error_msg = ""
     

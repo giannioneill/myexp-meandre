@@ -12,13 +12,9 @@ class TavernaEnactor < ActiveRecord::Base
   
   acts_as_runner
   
-  belongs_to :contributor, :polymorphic => true
-  validates_presence_of :contributor
-  
   validates_presence_of :username
   validates_presence_of :crypted_password
   validates_presence_of :url
-  validates_presence_of :title
   
   encrypts :password, :mode => :symmetric, :key => Conf.sym_encryption_key
   

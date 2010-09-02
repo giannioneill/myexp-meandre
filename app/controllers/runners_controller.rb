@@ -39,15 +39,17 @@ class RunnersController < ApplicationController
   end
 
   def new
-    @runners = RunnersHandler.runner_classes
+    @runners = Runner.runner_classes
     respond_to do |format|
       format.html # new.rhtml
     end
   end
 
   def create
-    runner_class = RunnersHandler.get_by_name(params[:runner_type])
-    @runner = runner_class.new
+    runner_class = Runner.get_class_by_name(params[:runner_type])
+    @runner_details = runner_class.new
+    @runner = Runner.new
+    @runner.details = @runner_details
     respond_to do |format|
       if update_runner!(@runner)
         flash[:notice] = "Your Runner of type '#{runner_class.name}' has been successfully registered."
@@ -99,7 +101,12 @@ protected
   def update_runner!(runner)
     success = true
 
-    @runner.update_details(params["runner_#{@runner.class.name}".to_sym])
+    runner_details = params["runner_#{params[:runner_type]}".to_sym]
+
+    runner.title = runner_details[:title] if runner_details[:title]
+    runner.description = runner_details[:description] if runner_details[:description]
+
+    @runner.details.update_details(runner_details)
     
     if params[:assign_to_group]
       network = Network.find(params[:assign_to_group_id])
@@ -119,14 +126,12 @@ protected
   def find_runners
     @personal_runners = []
     @group_runners = []
-    RunnersHandler.runner_classes.each do |c|
-      @personal_runners += c.find_by_contributor('User', current_user.id)
-      @group_runners += c.find_by_groups(current_user)
-    end
+    @personal_runners += Runner.find_by_contributor('User', current_user.id)
+    @group_runners += Runner.find_by_groups(current_user)
   end
   
   def find_runner_auth
-    runner = TavernaEnactor.find(:first, :conditions => ["id = ?", params[:id]])
+    runner = Runner.find(:first, :conditions => ["id = ?", params[:id]])
     
     if runner and Authorization.is_authorized?(action_name, nil, runner, current_user)
       @runner = runner

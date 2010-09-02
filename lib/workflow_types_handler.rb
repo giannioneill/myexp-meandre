@@ -66,6 +66,7 @@ class WorkflowTypesHandler
                         c.file_extensions_supported.include?(file_ext) && 
                         c.recognised?(file)
     end
+    logger.debug("FOUND CLASS: "+proc_class.name);
     return proc_class
   end
   

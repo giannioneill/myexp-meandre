@@ -152,6 +152,7 @@ class Workflow < ActiveRecord::Base
 
     if proc_class
 
+      logger.debug('ANY DATA HERE? '+opts[:data])
       processor = proc_class.new(opts[:data])
 
       metadata["title"]       = processor.get_title

@@ -8,6 +8,7 @@ module WorkflowProcessors
  require 'file_upload'
  require 'meandre_parser'
  require 'zip/zip'
+ require 'tempfile'
 
   class Meandre < WorkflowProcessors::Interface
     Mime::Type.register "application/octet-stream", :meandre
