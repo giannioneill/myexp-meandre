@@ -94,7 +94,6 @@ class JobsController < ApplicationController
     
     # Hard code certain values, for now.
     params[:job][:runnable_type] = 'Workflow'
-    params[:job][:runner_type] = 'TavernaEnactor'
     
     @job = Job.new(params[:job])
     @job.user = user
@@ -102,15 +101,6 @@ class JobsController < ApplicationController
     # Check runnable is a valid and authorized one
     # (for now we can assume it's a Workflow)
     runnable = Workflow.find(:first, :conditions => ["id = ?", params[:job][:runnable_id]])
-    
-    # Check that the runnable object is allowed to be run.
-    # At the moment: only Taverna 1 workflows are allowed.
-    if runnable 
-      if runnable.processor_class != WorkflowProcessors::TavernaScufl
-        success = false
-        err_msg = "The workflow specified to run in this job not supported. Please specify a Taverna 1 workflow instead."
-      end
-    end
     
     if not runnable or not Authorization.is_authorized?('download', nil, runnable, user)
       success = false
@@ -125,7 +115,7 @@ class JobsController < ApplicationController
     
     # Check runner is a valid and authorized one
     # (for now we can assume it's a TavernaEnactor)
-    runner = TavernaEnactor.find(:first, :conditions => ["id = ?", params[:job][:runner_id]])
+    runner = Runner.find(:first, :conditions => ["id = ?", params[:job][:runner_id]])
     if not runner or not Authorization.is_authorized?('execute', nil, runner, user)
       success = false
       @job.errors.add(:runner_id, "not valid or not authorized")
