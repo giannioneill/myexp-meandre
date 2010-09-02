@@ -91,7 +91,6 @@ class JobsController < ApplicationController
     logger.debug('CREATING JOB: '+YAML::dump(params));
     @job = Job.new(params[:job])
     @job.user = user
-    @job.runner_id = params[:job][:runner_id]
     
     # Check runnable is a valid and authorized one
     # (for now we can assume it's a Workflow)
