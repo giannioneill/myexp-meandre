@@ -7,6 +7,7 @@ require 'acts_as_runner'
 require 'enactor/client'
 require 'document/data'
 require 'document/report'
+require 'curb'
 
 class MeandreInfrastructure < ActiveRecord::Base
   
@@ -30,7 +31,9 @@ class MeandreInfrastructure < ActiveRecord::Base
   end
 
   def service_valid?
-    true
+    c = Curl::Easy.new(self.url+'public/services/ping.txt');
+    c.perform
+    c.body_str.include?('pong')
   end
 
   def get_remote_runnable_uri(runnable_type, runnable_id, runnable_version)

@@ -60,7 +60,7 @@ class Job < ActiveRecord::Base
         
         # Only continue if runner service is valid
         unless runner.details.service_valid?
-          run_errors << "The #{self.runner_type.humanize} is invalid or inaccessible. Please check the settings you have registered for this Runner."
+          run_errors << "The #{runner.details_type.humanize} is invalid or inaccessible. Please check the settings you have registered for this Runner."
           success = false
         else        
           # Ask the runner for the uri for the runnable object on the service
