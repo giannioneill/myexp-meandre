@@ -19,6 +19,13 @@ class Details
 	attr_accessor :name, :desc, :uri
 end
 
+class Property
+	@name
+  @uri
+  @value
+	attr_accessor :name, :uri, :value
+end
+
 class MeandreParser
 	def initialize(rdfstring)
 		@world = Redland::librdf_new_world
@@ -164,6 +171,27 @@ class MeandreParser
     details = find_details 
     input_uri = details.uri + 'instance/push-string/0' 
     return input_uri
+  end
+
+  def get_workflow_inputs()
+    predicate = Redland::librdf_new_node_from_uri_string(@world, 'http://www.w3.org/1999/02/22-rdf-syntax-ns#type')
+    object = Redland::librdf_new_node_from_uri_string(@world, 'http://www.meandre.org/ontology/property')
+    search = Redland::librdf_new_statement_from_nodes(@world, nil, predicate, object)
+    stream = Redland::librdf_model_find_statements(@model, search)
+    details = []
+    while Redland::librdf_stream_end(stream) == 0
+      statement = Redland::librdf_stream_get_object(stream)
+      subject = Redland::librdf_statement_get_subject(statement)
+      uri = Redland::librdf_node_get_uri(subject)
+      props = get_properties(subject)
+      detail = Property.new
+      detail.uri = Redland::librdf_uri_to_string(uri)
+      detail.name = props['http://www.meandre.org/ontology/key'] 
+      detail.value = props['http://www.meandre.org/ontology/value'] 
+      details << detail
+      Redland::librdf_stream_next(stream)
+    end
+    details
   end
 
 	#helper method that extracts literals from a given subject

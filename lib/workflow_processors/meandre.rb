@@ -62,7 +62,7 @@ module WorkflowProcessors
 
     def initialize(workflow_definition)
       super(workflow_definition)
-	  i = TempFile.new("meandre_zip");
+	  i = Tempfile.new("meandre_zip");
 	  i.write(workflow_definition);
 	  i.close(false);
 	  rdf = ""
