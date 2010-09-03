@@ -15,7 +15,18 @@
 </center>
 
 <% @runners.each do |runner| %>
+	<div style="display: none;" id="form_<%=runner.name%>" class="runner_form">
 	<%=render :partial=>"runners/#{get_type_dir(runner)}/new"%>
+	</div>
 <% end %>
 
 <% end -%>
+
+<script type="text/javascript">
+	function showForm(){
+		$$('.runner_form').each(Element.hide);
+		Effect.BlindDown('form_' + $('runner_type').value);
+	}
+	$('runner_type').addEventListener('change', showForm, false);
+	showForm();
+</script>
