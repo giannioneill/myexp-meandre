@@ -191,7 +191,8 @@ class MeandreParser
       details << detail
       Redland::librdf_stream_next(stream)
     end
-    details
+    #properties beginning with wb_ are meandre internal ones (e.g: position)
+    details.reject{|x| x.name.starts_with?('wb_')}
   end
 
 	#helper method that extracts literals from a given subject
