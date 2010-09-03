@@ -8,6 +8,7 @@ require 'enactor/client'
 require 'document/data'
 require 'document/report'
 require 'curb'
+require 'zip/zip'
 
 class MeandreInfrastructure < ActiveRecord::Base
   
@@ -36,8 +37,62 @@ class MeandreInfrastructure < ActiveRecord::Base
     c.body_str.include?('pong')
   end
 
+  def upload_flow(workflow)
+    pwdstring = 'admin:admin' #TODO: get this from DB
+    url = self.url 
+    c = Curl::Easy.new("#{url}services/repository/add.json")
+    c.userpwd = pwdstring
+    c.multipart_form_post = true
+    flow_file = Tempfile.new('flow')
+    flow_file.write(workflow.content_blob.data)
+    flow_file.close(false)
+
+    fields = []
+    files = []
+    zip = Zip::ZipFile.open(flow_file.path)
+    repo_content = ''
+    details = nil
+    urls = ''
+    details = nil
+    Zip::ZipFile.foreach(flow_file.path) do |file|
+      if file.name == 'repository/repository.ttl'
+        #for some reason Curb segfaults when we use a block
+        #so we use a Tempfile as a workaround
+        parser = MeandreParser.new(zip.read(file))
+        details = parser.find_details()
+        t = Tempfile.new('repo')
+        t.write(parser.get_ttl())
+        t.close(false)
+        fields << Curl::PostField.file('repository', t.path, t.path.hash.to_s)
+        files << t
+      elsif file.name.ends_with?('.jar')
+        t = Tempfile.new('component')
+        t.write(zip.read(file))
+        t.close(false)
+        fields << Curl::PostField.file('context', t.path, t.path.hash.to_s)
+        files << t 
+      end
+      fields << Curl::PostField.content('overwrite','true')
+    end
+    begin
+      c.http_post(*fields)
+    rescue
+      return nil
+    end
+    details.uri
+  end
+
   def get_remote_runnable_uri(runnable_type, runnable_id, runnable_version)
-    'http://www.example.org/flow/test/1'
+    workflow = Workflow.find(:first, :conditions => {:id => runnable_id})
+    unless workflow
+      return nil
+    end 
+    if workflow.processor_class == WorkflowProcessors::Meandre
+      return upload_flow(workflow)
+    elsif workflow.processor_class = WorkflowProcessors::MeandreTtl
+      return find_remote_flow(workflow)
+    end
+    nil
   end
 
   def submit_job(remote_uri, inputs_uri) 
