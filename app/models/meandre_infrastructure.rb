@@ -28,5 +28,21 @@ class MeandreInfrastructure < ActiveRecord::Base
   def verify_job_completed?(last_update)
     false
   end
+
+  def service_valid?
+    true
+  end
+
+  def get_remote_runnable_uri(runnable_type, runnable_id, runnable_version)
+    'http://www.example.org/flow/test/1'
+  end
+
+  def submit_job(remote_uri, inputs_uri) 
+    'http://www.example.org/execution/test/1'
+  end
+
+  def get_job_status(remote_uri)
+    'running'
+  end
   
 end

@@ -59,13 +59,13 @@ class Job < ActiveRecord::Base
       begin
         
         # Only continue if runner service is valid
-        unless runner.service_valid?
+        unless runner.details.service_valid?
           run_errors << "The #{self.runner_type.humanize} is invalid or inaccessible. Please check the settings you have registered for this Runner."
           success = false
         else        
           # Ask the runner for the uri for the runnable object on the service
           # (should submit the object to the service if required)
-          remote_runnable_uri = runner.get_remote_runnable_uri(self.runnable_type, self.runnable_id, self.runnable_version)
+          remote_runnable_uri = runner.details.get_remote_runnable_uri(self.runnable_type, self.runnable_id, self.runnable_version)
           
           if remote_runnable_uri
             # Submit inputs (if available) to runner service
@@ -76,11 +76,11 @@ class Job < ActiveRecord::Base
             
             # Submit the job to the runner, which should begin to execute it, then get status
             self.submitted_at = Time.now
-            self.job_uri = runner.submit_job(remote_runnable_uri, self.inputs_uri)
+            self.job_uri = runner.details.submit_job(remote_runnable_uri, self.inputs_uri)
             self.save!
             
             # Get status
-            self.last_status = runner.get_job_status(self.job_uri)
+            self.last_status = runner.details.get_job_status(self.job_uri)
             self.last_status_at = Time.now
             self.save!
           else
