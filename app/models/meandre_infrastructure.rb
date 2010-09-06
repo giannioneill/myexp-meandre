@@ -83,6 +83,20 @@ class MeandreInfrastructure < ActiveRecord::Base
     details.uri
   end
 
+  def find_remote_flow(workflow)
+    parser = MeandreParser.new(workflow.content_blob.data)
+    details = parser.find_details
+    workflow_uri = details.uri
+    c = Curl::Easy.new("#{url}services/repository/list_flows.json")
+    c.userpwd = "#{username}:#{crypted_password.decrypt}"
+    c.perform
+    remote_workflows = JSON.parse(c.body_str)
+    remote_workflows.each do |remote_workflow|
+      return workflow_uri if remote_workflow['meandre_uri'] == workflow_uri
+    end
+    nil
+  end
+
   def get_remote_runnable_uri(runnable_type, runnable_id, runnable_version)
     workflow = Workflow.find(:first, :conditions => {:id => runnable_id})
     unless workflow
@@ -90,7 +104,7 @@ class MeandreInfrastructure < ActiveRecord::Base
     end 
     if workflow.processor_class == WorkflowProcessors::Meandre
       return upload_flow(workflow)
-    elsif workflow.processor_class = WorkflowProcessors::MeandreTtl
+    elsif workflow.processor_class == WorkflowProcessors::MeandreTtl
       return find_remote_flow(workflow)
     end
     nil
@@ -104,7 +118,6 @@ class MeandreInfrastructure < ActiveRecord::Base
       body_str += data
       flow_id = /Unique flow ID: (.*)$/.match(body_str)
       if flow_id
-        logger.debug("GOT FLOW ID: "+flow_id[1]);
         return flow_id[1]
       end
       data.length
@@ -113,7 +126,6 @@ class MeandreInfrastructure < ActiveRecord::Base
   end
 
   def get_job_status(remote_uri)
-    logger.debug('CHECKING STATUS')
     c = Curl::Easy.new("#{url}services/jobs/list_jobs_statuses.json")
     c.userpwd = "#{username}:#{crypted_password.decrypt}"
     c.perform
