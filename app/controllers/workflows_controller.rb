@@ -687,7 +687,7 @@ protected
   end
   
   def initiliase_empty_objects_for_new_pages
-    if ["new", "create"].include?(action_name)
+    if ["new", "create", "import"].include?(action_name)
       @workflow = Workflow.new
     end
     
