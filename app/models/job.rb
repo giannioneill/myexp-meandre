@@ -108,22 +108,22 @@ class Job < ActiveRecord::Base
   def refresh_status!
     begin
       if self.job_uri
-        self.last_status = runner.get_job_status(self.job_uri)
+        self.last_status = runner.details.get_job_status(self.job_uri)
         self.last_status_at = Time.now
         
         unless self.started_at
-          self.started_at = runner.get_job_started_at(self.job_uri)
+          self.started_at = runner.details.get_job_started_at(self.job_uri)
         end
         
         if self.finished?
           unless self.completed_at
-            self.completed_at = runner.get_job_completed_at(self.job_uri, self.last_status)
+            self.completed_at = runner.details.get_job_completed_at(self.job_uri, self.last_status)
           end
         end
         
         if self.completed?
           unless self.outputs_uri
-            self.outputs_uri = runner.get_job_outputs_uri(self.job_uri)
+            self.outputs_uri = runner.details.get_job_outputs_uri(self.job_uri)
           end
         end
         
@@ -163,7 +163,7 @@ class Job < ActiveRecord::Base
   def report
     begin
       if self.job_uri
-        return runner.get_job_report(self.job_uri)
+        return runner.details.get_job_report(self.job_uri)
       else
         return nil
       end
@@ -179,14 +179,14 @@ class Job < ActiveRecord::Base
   end
   
   def finished?
-    return runner.verify_job_finished?(self.last_status)
+    return runner.details.verify_job_finished?(self.last_status)
   end
   
   # Note: this will return outputs in a format as defined by the Runner.
   def outputs_data
     begin
       if completed?
-        return runner.get_job_outputs(self.job_uri)
+        return runner.details.get_job_outputs(self.job_uri)
       else
         return nil
       end
@@ -199,7 +199,7 @@ class Job < ActiveRecord::Base
   
   def outputs_as_xml
     begin
-      if completed? and (xml_doc = runner.get_job_outputs_xml(self.job_uri))
+      if completed? and (xml_doc = runner.details.get_job_outputs_xml(self.job_uri))
         return xml_doc.to_s
       else
         return 'Error: could not retrieve outputs XML document.'
@@ -215,7 +215,7 @@ class Job < ActiveRecord::Base
   def outputs_size
     begin
       if completed?
-        return runner.get_job_output_size(self.job_uri)
+        return runner.details.get_job_output_size(self.job_uri)
       else
         return nil
       end

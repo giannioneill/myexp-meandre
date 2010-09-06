@@ -9,6 +9,7 @@ require 'document/data'
 require 'document/report'
 require 'curb'
 require 'zip/zip'
+require 'json'
 
 class MeandreInfrastructure < ActiveRecord::Base
   
@@ -41,7 +42,7 @@ class MeandreInfrastructure < ActiveRecord::Base
     pwdstring = 'admin:admin' #TODO: get this from DB
     url = self.url 
     c = Curl::Easy.new("#{url}services/repository/add.json")
-    c.userpwd = pwdstring
+    c.userpwd = "#{username}:#{crypted_password.decrypt}"
     c.multipart_form_post = true
     flow_file = Tempfile.new('flow')
     flow_file.write(workflow.content_blob.data)
@@ -96,11 +97,41 @@ class MeandreInfrastructure < ActiveRecord::Base
   end
 
   def submit_job(remote_uri, inputs_uri) 
-    'http://www.example.org/execution/test/1'
+    c = Curl::Easy.new("#{url}services/execute/flow.txt?uri=#{remote_uri}")
+    c.userpwd = "#{username}:#{crypted_password.decrypt}"
+    body_str = ''
+    c.on_body do |data|
+      body_str += data
+      flow_id = /Unique flow ID: (.*)$/.match(body_str)
+      if flow_id
+        logger.debug("GOT FLOW ID: "+flow_id[1]);
+        return flow_id[1]
+      end
+      data.length
+    end
+    c.perform
   end
 
   def get_job_status(remote_uri)
-    'running'
+    logger.debug('CHECKING STATUS')
+    c = Curl::Easy.new("#{url}services/jobs/list_jobs_statuses.json")
+    c.userpwd = "#{username}:#{crypted_password.decrypt}"
+    c.perform
+    statuses = JSON.parse(c.body_str)
+    statuses.each do |status|
+      if status['job_id'] == remote_uri
+        if status['status'] == 'R'
+          return 'running'
+        else
+          return 'complete'
+        end
+      end
+    end
+    'unknown'
+  end
+
+  def get_job_report(remote_uri)
+    nil
   end
   
 end
