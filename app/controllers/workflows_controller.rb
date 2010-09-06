@@ -12,8 +12,8 @@ class WorkflowsController < ApplicationController
   before_filter :find_workflows_rss, :only => [:index]
   before_filter :find_workflow_auth, :except => [:search, :index, :new, :create, :import, :get_available]
   
-  before_filter :initiliase_empty_objects_for_new_pages, :only => [:new, :create, :new_version, :create_version]
-  before_filter :set_sharing_mode_variables, :only => [:show, :new, :create, :edit, :update]
+  before_filter :initiliase_empty_objects_for_new_pages, :only => [:new, :create, :new_version, :create_version, :import]
+  before_filter :set_sharing_mode_variables, :only => [:show, :new, :create, :edit, :update, :import]
   
   #before_filter :check_file_size, :only => [:create, :create_version]
   before_filter :check_custom_workflow_type, :only => [:create, :create_version]
@@ -218,7 +218,6 @@ class WorkflowsController < ApplicationController
 
   # GET /workflows/import
   def import
-    @new_workflow = Workflow.new
     @runners = Runner.find(:all, :conditions => {:details_type=>"MeandreInfrastructure"})
     @workflows = get_workflows(@runners.first.id)
   end
@@ -718,7 +717,7 @@ protected
   
   def set_sharing_mode_variables
     case action_name
-      when "new"
+      when "new", "import"
         @sharing_mode  = 0
         @updating_mode = 6
       when "create", "update"
