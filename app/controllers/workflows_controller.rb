@@ -220,14 +220,14 @@ class WorkflowsController < ApplicationController
   def import
     @new_workflow = Workflow.new
     @runners = Runner.find(:all, :conditions => {:details_type=>"MeandreInfrastructure"})
+    @workflows = get_workflows(@runners.first.id)
   end
 
-  # GET /workflows/get_available
-  def get_available
+  def get_workflows(runner_id)
     #this method contacts a Meandre server and lists all the 
     #available workflows
     #for use by the ajaxy bit of the import page
-    runner = Runner.find_by_id(params[:runner])
+    runner = Runner.find_by_id(runner_id)
     c = Curl::Easy.new("#{runner.details.url}services/repository/list_flows.json")
     c.userpwd = 'admin:admin'
     c.perform
@@ -236,7 +236,11 @@ class WorkflowsController < ApplicationController
     rescue
       @results = []
     end
-    render :partial=>'workflows/get_available', :object=>@results
+  end
+
+  # GET /workflows/get_available
+  def get_available
+    render :partial=>'workflows/get_available', :locals=>{:results=>get_workflows(params[:runner])}
   end
 
   def get_workflow_description(runner_id, workflow_uri)

@@ -22,11 +22,14 @@
   <p class="step_text">2. Select Workflow</p>
 
 	<center>
-	<%=select_tag('workflow_uri', options_for_select([['Workflow1', 1]]))%>
+	<%=select_tag('workflow_uri', render(:partial => "get_available", :locals=>{:results=>@workflows}))%> 
+	<img style="display: none;" src="/images/spinner.gif" id="spinner" />
 	</center>
 
   <%= observe_field :runner, :url => { :action => :get_available },
     :update => :suggest,
+	:before => "Element.show('spinner')",
+	:success => "Element.hide('spinner')",
     :with => 'runner',
     :update => 'workflow_uri'
   %>
