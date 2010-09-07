@@ -70,5 +70,9 @@ module JobsHelper
     file.close
     return image_tag("/#{image_path}/#{image}")
   end
+
+  def get_details_dir(job)
+    job.details_type.underscore
+  end
   
 end
