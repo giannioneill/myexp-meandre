@@ -127,7 +127,7 @@ module WorkflowProcessors
 	end
     
     def get_workflow_model_input_ports
-      
+      @parser.get_workflow_inputs
     end
     
     def get_search_terms

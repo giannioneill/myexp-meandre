@@ -146,4 +146,8 @@ class MeandreInfrastructure < ActiveRecord::Base
     nil
   end
   
+  def job_type
+    MeandreJob
+  end
+  
 end

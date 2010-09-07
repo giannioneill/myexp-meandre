@@ -1,54 +1,18 @@
-# myExperiment: app/models/job.rb
+# myExperiment: app/models/meandre_job.rb
 #
 # Copyright (c) 2008 University of Manchester and the University of Southampton.
 # See license.txt for details.
 
-class Job < ActiveRecord::Base
-  
-  belongs_to :runnable, :polymorphic => true
-  validates_presence_of :runnable
-  validates_presence_of :runnable_version
-  
-  belongs_to :runner
-  validates_presence_of :runner
-  
-  belongs_to :experiment
-  validates_presence_of :experiment
-  
-  belongs_to :user
-  validates_presence_of :user
-  
-  belongs_to :parent_job, :class_name => "Job", :foreign_key => "parent_job_id"
-  
-  has_many :child_jobs, :class_name => "Job", :foreign_key => "parent_job_id"
-  
-  format_attribute :description
-  
-  validates_presence_of :title
+class MeandreJob < ActiveRecord::Base
   
   serialize :inputs_data
 
-  def self.default_title(user)
-    s = "Job_#{Time.now.strftime('%Y%m%d-%H%M')}"
-    s = s + "_#{user.name}" if user
-    return s
-  end
-  
-  def last_status
-    if self[:last_status].nil?
-      return "not yet submitted"
-    else
-      return self[:last_status]
-    end
-  end
+  has_one :job, :foreign_key=>'details_id'
   
   def run_errors
     @run_errors ||= [ ]
   end
   
-  def allow_run?
-    self.job_uri.blank? and self.submitted_at.blank?
-  end
   
   def submit_and_run!
     run_errors.clear
@@ -137,7 +101,7 @@ class Job < ActiveRecord::Base
   end
   
   def inputs_data=(data)
-    if allow_run?
+    if job.allow_run?
       self[:inputs_data] = data
     end
   end
@@ -172,14 +136,6 @@ class Job < ActiveRecord::Base
       logger.error(ex.backtrace)
       return nil
     end
-  end
-  
-  def completed?
-    return runner.details.verify_job_completed?(self.last_status)
-  end
-  
-  def finished?
-    return runner.details.verify_job_finished?(self.last_status)
   end
   
   # Note: this will return outputs in a format as defined by the Runner.
