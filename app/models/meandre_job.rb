@@ -32,12 +32,6 @@ class MeandreJob < ActiveRecord::Base
           remote_runnable_uri = runner.details.get_remote_runnable_uri(self.runnable_type, self.runnable_id, self.runnable_version)
           
           if remote_runnable_uri
-            # Submit inputs (if available) to runner service
-            unless self.inputs_data.nil?
-              self.inputs_uri = runner.submit_inputs(self.inputs_data)
-              self.save!
-            end
-            
             # Submit the job to the runner, which should begin to execute it, then get status
             self.submitted_at = Time.now
             self.job_uri = runner.details.submit_job(remote_runnable_uri, self.inputs_uri)
