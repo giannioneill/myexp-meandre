@@ -5,7 +5,8 @@
 <br/>
 
 <% form_tag save_inputs_job_path(@experiment, @job), :multipart => true do -%>
-  <table>
+  <center>
+  <table class="simple">
   <% s_field_counter = 0 -%>
   <tr><th>Name</th><th>Value</th></tr> 
   <% inputs.each do |i| -%>
@@ -19,9 +20,9 @@
   <p class="note_text" style="text-align: center;">
     Remember to click 'save' when you are done with setting/editing the input data.
   </p>
-  
   <p>
     <center><%= submit_tag "Save Input Data", :disable_with => "Saving..." -%></center>
   </p>
   </table>
+  </center>
 <% end %>
