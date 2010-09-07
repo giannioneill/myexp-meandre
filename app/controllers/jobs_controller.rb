@@ -88,10 +88,9 @@ class JobsController < ApplicationController
     # Hard code certain values, for now.
     params[:job][:runnable_type] = 'Workflow'
     
-    logger.debug('CREATING JOB: '+YAML::dump(params));
     @job = Job.new(params[:job])
     @job.user = user
-    
+
     # Check runnable is a valid and authorized one
     # (for now we can assume it's a Workflow)
     runnable = Workflow.find(:first, :conditions => ["id = ?", params[:job][:runnable_id]])
@@ -114,6 +113,8 @@ class JobsController < ApplicationController
       success = false
       @job.errors.add(:runner_id, "not valid or not authorized")
     end
+
+    @job.details = runner.details.job_type.new
     
     success = update_parent_experiment(params, @job, user)
     
@@ -193,7 +194,7 @@ class JobsController < ApplicationController
       end
     end
     
-    @job.inputs_data = inputs_hash
+    @job.details.inputs_data = inputs_hash
     
     respond_to do |format|
       if @job.save  

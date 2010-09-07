@@ -151,7 +151,7 @@
 					<% s_field_counter = 0 -%>
 					
 					<% inputs.each do |i| -%>
-						<% input_type = @job.current_input_type(i.name) -%>
+						<% input_type = @job.details.current_input_type(i.name) -%>
 						
 						<h4>Input Port: <%= i.name %></h4>
 						
@@ -189,17 +189,17 @@
 							<div id="<%= i.name -%>_single_input_box" class="box_editing_inner" style="display: none; width: 440px;">
 								<center>
 									<%= text_area_tag "#{i.name}_single_input", 
-																		input_type == 'single' ? h(@job.inputs_data[i.name]) : nil, 
+																		input_type == 'single' ? h(@job.details.inputs_data[i.name]) : nil, 
 																		:size => "50x10" -%>
 								</center>
 							</div>
 							
 							<div id="<%= i.name -%>_list_input_box" class="box_editing_inner" style="display: none; width: 635px;">
 								<div id="<%= i.name -%>_list" style="margin-bottom: 0.5em;">
-									<%- if input_type == 'none' or @job.inputs_data[i.name].nil? %>
+									<%- if input_type == 'none' or @job.details.inputs_data[i.name].nil? %>
 										<p><%= text_field_tag "#{i.name}_list_input[0]", nil, :size => 90 -%></p>
 									<% else -%>
-										<% @job.inputs_data[i.name].each do |val| -%>
+										<% @job.details.inputs_data[i.name].each do |val| -%>
 											<% s_field_counter = s_field_counter + 1 -%>
 											<% p_id = i.name + '_p_' + s_field_counter.to_s -%>
 											<p id="<%= p_id %>">
