@@ -79,12 +79,6 @@ class MeandreJob < ActiveRecord::Base
           end
         end
         
-        if self.completed?
-          unless self.outputs_uri
-            self.outputs_uri = runner.details.get_job_outputs_uri(self.job_uri)
-          end
-        end
-        
         self.save
       end 
     rescue Exception => ex
