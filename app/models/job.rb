@@ -43,7 +43,7 @@ class Job < ActiveRecord::Base
   end
 
   def details
-    @details ||= TavernaJob.find_by_id(details_id)
+    @details ||= Kernel.const_get(self.details_type).find_by_id(details_id)
   end
   
   def last_status
