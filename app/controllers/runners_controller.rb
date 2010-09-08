@@ -70,7 +70,7 @@ class RunnersController < ApplicationController
   def update
     respond_to do |format|
       if update_runner!(@runner)
-        flash[:notice] = "Your Runner of type 'Taverna Enactor' has been successfully updated."
+        flash[:notice] = "Your Runner of type '#{@runner.details.class.name}' has been successfully updated."
         format.html { redirect_to runner_url(@runner) }
       else
         format.html { render :action => "edit" }
