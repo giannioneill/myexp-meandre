@@ -31,6 +31,79 @@ class Job < ActiveRecord::Base
   
   serialize :inputs_data
 
+  def submit_and_run!
+    run_errors.clear
+    success = true
+    
+    if allow_run?
+      
+      begin
+        
+        # Only continue if runner service is valid
+        unless runner.details.service_valid?
+          run_errors << "The #{runner.details_type.humanize} is invalid or inaccessible. Please check the settings you have registered for this Runner."
+          success = false
+        else        
+          if remote_runnable_uri
+            # Submit the job to the runner, which should begin to execute it, then get status
+            self.submitted_at = Time.now
+            self.job_uri = runner.details.submit_job(self)
+            self.save!
+            
+            # Get status
+            self.last_status = runner.details.get_job_status(self.job_uri)
+            self.last_status_at = Time.now
+            self.save!
+          else
+            run_errors << "Failed to submit the runnable item to the runner service. The item might not exist anymore or access may have been denied at the service."
+            success = false
+          end
+        end
+        
+      rescue Exception => ex
+        run_errors << "An exception has occurred whilst submitting and running this job: #{ex}"
+        logger.error(ex)
+        logger.error(ex.backtrace)
+        success = false
+      end
+      
+    else
+      run_errors << "This Job has already been submitted and cannot be rerun."
+      success = false;
+    end
+    
+    return success
+    
+  end
+
+  def refresh_status!
+    begin
+      if self.job_uri
+        self.last_status = runner.details.get_job_status(self.job_uri)
+        self.last_status_at = Time.now
+        
+        unless self.started_at
+          self.started_at = runner.details.get_job_started_at(self.job_uri)
+        end
+        
+        if self.finished?
+          unless self.completed_at
+            self.completed_at = runner.details.get_job_completed_at(self.job_uri, self.last_status)
+          end
+        end
+        
+        if self.completed?
+          details.update_outputs
+        end
+        
+        self.save
+      end 
+    rescue Exception => ex
+      logger.error("ERROR occurred whilst refreshing status for job #{self.job_uri}. Exception: #{ex}")
+      logger.error(ex.backtrace)
+      return false
+    end
+  end
 
   def self.default_title(user)
     s = "Job_#{Time.now.strftime('%Y%m%d-%H%M')}"

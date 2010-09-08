@@ -110,7 +110,8 @@ class MeandreInfrastructure < ActiveRecord::Base
     nil
   end
 
-  def submit_job(remote_uri, inputs_uri) 
+  def submit_job(job) 
+    remote_uri = get_remote_runnable_uri(job.runnable_type, job.runnable_id, job.runnable_version)
     c = Curl::Easy.new("#{url}services/execute/flow.txt?uri=#{remote_uri}")
     c.userpwd = "#{username}:#{crypted_password.decrypt}"
     body_str = ''

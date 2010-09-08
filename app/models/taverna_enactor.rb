@@ -63,8 +63,10 @@ class TavernaEnactor < ActiveRecord::Base
     service_client.upload_data(inputs_hash)
   end
   
-  def submit_job(remote_runnable_uri, inputs_uri)
-    service_client.submit_job(remote_runnable_uri, inputs_uri)
+  def submit_job(job)
+    inputs_uri = submit_inputs(job.details.input_data)
+    remote_uri = get_remote_runnable_uri(job.runnable_type, job.runnable_id, job.runnable_version)
+    service_client.submit_job(remote_uri, inputs_uri)
   end
   
   def get_job_status(job_uri)
