@@ -282,8 +282,11 @@ class JobsController < ApplicationController
     child_job.runnable = @job.runnable
     child_job.runnable_version = @job.runnable_version
     child_job.runner = @job.runner
-    child_job.inputs_data = @job.inputs_data
     child_job.parent_job = @job
+
+    child_job.details = @job.details.class.new
+    child_job.save!
+    child_job.details.inputs_data = @job.details.inputs_data
     
     respond_to do |format|
       if child_job.save
