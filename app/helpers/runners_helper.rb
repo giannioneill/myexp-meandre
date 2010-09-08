@@ -1,5 +1,5 @@
 module RunnersHelper
   def get_type_dir(c)
-    c.name.downcase
+    c.name.underscore
   end
 end
