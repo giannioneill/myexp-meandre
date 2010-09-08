@@ -151,28 +151,10 @@
 				This Job has already been submitted and therefore inputs cannot be changed now.
 			</p>
 			
-			<% if @job.inputs_data.nil? -%>
+			<% if @job.details.inputs_data.nil? -%>
 				<p class="none_text">No input data was provided.</p>
 			<% else -%>
-				<% inputs.each do |i| -%>
-					<% input_type = @job.current_input_type(i.name) -%>
-					<div class="box_simple" style="margin-top: 0.5em;">
-						<h4>Input Port: <%= i.name %></h4>
-						<% if input_type == 'none' -%>
-							<p>No input</p>
-						<% elsif input_type == 'single' -%>
-							<p>Single input:</p>
-							<p style="margin-left: 1em;"><%= h @job.inputs_data[i.name] -%></p>
-						<% elsif input_type == 'list' -%>
-							<p>List of inputs:</p>
-							<ul style="margin-top: 0;">
-								<% @job.inputs_data[i.name].each do |val| -%>
-									<li><%= h val -%></li>
-								<% end -%>
-							</ul>
-						<% end %>
-					</div>
-				<% end -%>
+				<%=render :partial=>"jobs/#{get_details_dir(@job)}/inputs", :locals=>{:inputs => inputs} %>
 			<% end -%>
 		<% end -%>
 		
