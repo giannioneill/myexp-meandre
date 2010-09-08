@@ -44,20 +44,15 @@ class Job < ActiveRecord::Base
           run_errors << "The #{runner.details_type.humanize} is invalid or inaccessible. Please check the settings you have registered for this Runner."
           success = false
         else        
-          if remote_runnable_uri
-            # Submit the job to the runner, which should begin to execute it, then get status
-            self.submitted_at = Time.now
-            self.job_uri = runner.details.submit_job(self)
-            self.save!
-            
-            # Get status
-            self.last_status = runner.details.get_job_status(self.job_uri)
-            self.last_status_at = Time.now
-            self.save!
-          else
-            run_errors << "Failed to submit the runnable item to the runner service. The item might not exist anymore or access may have been denied at the service."
-            success = false
-          end
+          # Submit the job to the runner, which should begin to execute it, then get status
+          self.submitted_at = Time.now
+          self.job_uri = runner.details.submit_job(self)
+          self.save!
+          
+          # Get status
+          self.last_status = runner.details.get_job_status(self.job_uri)
+          self.last_status_at = Time.now
+          self.save!
         end
         
       rescue Exception => ex
