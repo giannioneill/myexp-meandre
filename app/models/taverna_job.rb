@@ -111,7 +111,7 @@ class TavernaJob < ActiveRecord::Base
   def save_inputs(params)
     inputs_hash = { }
     
-    input_ports = @job.runnable.get_input_ports(@job.runnable_version)
+    input_ports = job.runnable.get_input_ports(@job.runnable_version)
     
     input_ports.each do |i|
       case params["#{i.name}_input_type".to_sym]
