@@ -166,36 +166,7 @@ class JobsController < ApplicationController
   end
   
   def save_inputs
-    inputs_hash = { }
-    
-    input_ports = @job.runnable.get_input_ports(@job.runnable_version)
-    
-    input_ports.each do |i|
-      case params["#{i.name}_input_type".to_sym]
-      when "none"
-        inputs_hash[i.name] = nil
-      when "single"
-        inputs_hash[i.name] = params["#{i.name}_single_input".to_sym]
-      when "list"
-        h = params["#{i.name}_list_input".to_sym]
-        if h and h.is_a?(Hash)
-          # Need to sort because we need to assume that order is important!
-          h = h.sort {|a,b| a[0]<=>b[0]}
-          vals = [ ]
-          h.each do |v|
-            vals << v[1]
-          end
-          inputs_hash[i.name] = vals
-        else
-          flash[:error] += "Failed to read list of inputs for port: #{i.name}. "
-        end
-      when "file"
-        inputs_hash[i.name] = params["#{i.name}_file_input".to_sym].read
-      end
-    end
-    
-    @job.details.inputs_data = inputs_hash
-    
+    @job.details.save_inputs(params)
     respond_to do |format|
       if @job.save  
         flash[:notice] = "Input data successfully saved" if flash[:error].blank?

@@ -23,7 +23,8 @@ class Property
 	@name
   @uri
   @value
-	attr_accessor :name, :uri, :value
+  @component_uri
+	attr_accessor :name, :uri, :value, :component_uri
 end
 
 class MeandreParser
@@ -188,11 +189,24 @@ class MeandreParser
       detail.uri = Redland::librdf_uri_to_string(uri)
       detail.name = props['http://www.meandre.org/ontology/key'] 
       detail.value = props['http://www.meandre.org/ontology/value'] 
+      detail.component_uri = get_parent_component(detail.uri)
       details << detail
       Redland::librdf_stream_next(stream)
     end
     #properties beginning with wb_ are meandre internal ones (e.g: position)
     details.reject{|x| x.name.starts_with?('wb_')}
+  end
+
+  #find which componen ta given property uri belongs to 
+  def get_parent_component(uri)
+    predicate = Redland::librdf_new_node_from_uri_string(@world, 'http://www.meandre.org/ontology/property_set')
+    object = Redland::librdf_new_node_from_uri_string(@world, uri)
+    search = Redland::librdf_new_statement_from_nodes(@world, nil, predicate, object)
+    stream = Redland::librdf_model_find_statements(@model, search)
+    statement = Redland::librdf_stream_get_object(stream)
+    subject = Redland::librdf_statement_get_subject(statement)
+    uri = Redland::librdf_node_get_uri(subject)
+    Redland::librdf_uri_to_string(uri)
   end
 
 	#helper method that extracts literals from a given subject

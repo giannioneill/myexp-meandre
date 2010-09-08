@@ -10,9 +10,7 @@
   <% s_field_counter = 0 -%>
   <tr><th>Name</th><th>Value</th></tr> 
   <% inputs.each do |i| -%>
-    <% input_type = @job.details.current_input_type(i.name) -%>
-    
-    <tr><td><%= i.name %></td><td><%=text_field_tag i.uri, i.value%></td></tr>
+    <tr><td><%= i.name %></td><td><%=text_field_tag i.uri, @job.details.input_value(i)%></td></tr>
   <% end -%>
   
   <script>field_counter = <%= s_field_counter -%></script>

@@ -97,8 +97,7 @@ class MeandreInfrastructure < ActiveRecord::Base
     nil
   end
 
-  def get_remote_runnable_uri(runnable_type, runnable_id, runnable_version)
-    workflow = Workflow.find(:first, :conditions => {:id => runnable_id})
+  def get_remote_runnable_uri(workflow)
     unless workflow
       return nil
     end 
@@ -111,10 +110,21 @@ class MeandreInfrastructure < ActiveRecord::Base
   end
 
   def submit_job(job) 
-    remote_uri = get_remote_runnable_uri(job.runnable_type, job.runnable_id, job.runnable_version)
-    c = Curl::Easy.new("#{url}services/execute/flow.txt?uri=#{remote_uri}")
+    #FIXME: this should be versioned
+    workflow = Workflow.find(:first, :conditions => {:id => job.runnable_id})
+    remote_uri = get_remote_runnable_uri(workflow)
+    c = Curl::Easy.new("#{url}services/auxiliar/run_tuned_flow.txt")
     c.userpwd = "#{username}:#{crypted_password.decrypt}"
-    body_str = ''
+    c.multipart_form_post=false
+    inputs = workflow.processor_class.new(workflow.content_blob.data).get_workflow_model_input_ports
+    fields = [];
+    inputs.each do |i|
+      fields << 'flow_uri='+remote_uri
+      fields << 'flow_component_instance='+i.component_uri
+      fields << 'property_name='+i.name
+      fields << 'property_value='+job.details.input_value(i)
+    end
+    body_str = ""
     c.on_body do |data|
       body_str += data
       flow_id = /Unique flow ID: (.*)$/.match(body_str)
@@ -123,7 +133,7 @@ class MeandreInfrastructure < ActiveRecord::Base
       end
       data.length
     end
-    c.perform
+    c.http_post(*fields)
   end
 
   def get_job_status(remote_uri)

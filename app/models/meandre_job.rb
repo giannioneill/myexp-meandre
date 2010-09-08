@@ -180,6 +180,27 @@ class MeandreJob < ActiveRecord::Base
     runner.get_output_mime_types(output_data)
   end
   
+  def save_inputs(params)
+    inputs_hash = { }
+    
+    input_ports = job.runnable.get_input_ports(@job.runnable_version)
+    
+    input_ports.each do |i|
+      inputs_hash[i.uri] = params[i.uri]
+    end
+    
+    self.inputs_data = inputs_hash
+  end
+
+  #in meandre properties (inputs) have defaults, this method
+  #returns the user supplied input, or the default if the
+  #user supplied input is not set
+  def input_value(prop)
+    if self.inputs_data.nil? || self.inputs_data[prop.uri].nil?
+      return prop.value
+    end
+    self.inputs_data[prop.uri]
+  end
 protected
   
 end
