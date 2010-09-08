@@ -201,7 +201,7 @@
 	<% end -%>
 	
 	<div id="status_box">
-		<%= render :partial => "status_info", :locals => { :job => @job, :experiment => @experiment } -%>
+		<%= render :partial => "jobs/#{get_details_dir(@job)}/status_info", :locals => { :job => @job, :experiment => @experiment } -%>
 	</div>
 </div>
 
