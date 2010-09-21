@@ -108,7 +108,7 @@ class BlobsController < ApplicationController
       end
       file.write(c.body_str)
       content_type = c.content_type
-      file.original_filename = c.url.split('/').last
+      file.original_filename = c.url
       file.content_type = c.content_type.split(';').first
       file.rewind
     end
