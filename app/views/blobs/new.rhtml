@@ -3,6 +3,18 @@
 <%= javascript_include_tag :fckeditor %>
 <%= javascript_include_tag "osp.js" %>
 
+<script type="text/javascript">
+function toggleUploadField(){
+	if($('upload_type_file').checked){
+		Element.show('blob_data');
+		Element.hide('url');
+	}else{
+		Element.hide('blob_data');
+		Element.show('url');
+	}
+}
+</script>
+
 <h1>Upload File</h1>
 
 <%= error_messages_for :blob %>
@@ -11,7 +23,15 @@
 
   <p style="text-align: center;">
     <strong>File to upload: </strong>
+	<%=radio_button_tag 'upload_type', 'url'%>From URL
+	<%=radio_button_tag 'upload_type', 'file', true%>From File
+	<br/>
     <%= file_field :blob, :data %>
+    <%= text_field_tag 'url', '', :style=>'display: none;'%>
+	<script type="text/javascript">
+		$('upload_type_url').observe('change', toggleUploadField)
+		$('upload_type_file').observe('change', toggleUploadField)
+	</script>
   </p>
   
   <br/>
