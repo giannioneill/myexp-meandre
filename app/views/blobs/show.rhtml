@@ -94,7 +94,9 @@
 				</p>
 			<% end %>
 
-			<%=render :partial=>"blobs/#{@blob.content_type.mime_type.sub('/', '_')}/details" %>
+			<% unless @handler.nil? %>
+				<%=render :partial=>"blobs/#{@blob.content_type.mime_type.sub('/', '_')}/details" %>
+			<% end %>
 		</div>
 	
 	</div>
