@@ -3,6 +3,8 @@
 # Copyright (c) 2007 University of Manchester and the University of Southampton.
 # See license.txt for details.
 
+require 'file_types_handler'
+
 class BlobsController < ApplicationController
   before_filter :login_required, :except => [:index, :show, :download, :named_download, :statistics, :search]
   
@@ -62,6 +64,8 @@ class BlobsController < ApplicationController
     if allow_statistics_logging(@blob)
       @viewing = Viewing.create(:contribution => @blob.contribution, :user => (logged_in? ? current_user : nil), :user_agent => request.env['HTTP_USER_AGENT'], :accessed_from_site => accessed_from_website?())
     end
+    
+    @handler = FileTypesHandler.for_mime_type(@blob.content_type.mime_type)
     
     respond_to do |format|
       format.html {
