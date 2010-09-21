@@ -4,7 +4,7 @@
 # See license.txt for details.
 
 module FileProcessors
-  class ApplicationRdfXml
+  class ApplicationRdfXml < Interface
     
     #MIME-type handled by this class
     def self.mime_type

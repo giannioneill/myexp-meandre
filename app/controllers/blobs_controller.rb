@@ -65,7 +65,8 @@ class BlobsController < ApplicationController
       @viewing = Viewing.create(:contribution => @blob.contribution, :user => (logged_in? ? current_user : nil), :user_agent => request.env['HTTP_USER_AGENT'], :accessed_from_site => accessed_from_website?())
     end
     
-    @handler = FileTypesHandler.for_mime_type(@blob.content_type.mime_type)
+    handler_class = FileTypesHandler.for_mime_type(@blob.content_type.mime_type)
+    @handler = handler_class.new(@blob.content_blob.data) unless handler_class.nil?
     
     respond_to do |format|
       format.html {
