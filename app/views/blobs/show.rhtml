@@ -93,6 +93,8 @@
 					You cannot download this File
 				</p>
 			<% end %>
+
+			<%=render :partial=>"blobs/#{@blob.content_type.mime_type.sub('/', '_')}/details" %>
 		</div>
 	
 	</div>
