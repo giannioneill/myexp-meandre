@@ -94,55 +94,67 @@ class BlobsController < ApplicationController
   def create
 
     # don't create new blob if no file has been selected
-    if params[:blob][:data].size == 0
-      respond_to do |format|
-        flash.now[:error] = "Please select a file to upload."
-        format.html { render :action => "new" }
+    file=params[:blob][:data]
+    if file == ''
+      file = Tempfile.new('file_import')
+      file.extend(FileUpload)
+      c = Curl::Easy.new(params[:url])
+      begin
+        c.perform
+      rescue
+        flash[:error] = "Could not download file."
+        redirect_to :action=>'new'
+        return
       end
-    else
-      data = params[:blob][:data].read
-      params[:blob][:local_name] = params[:blob][:data].original_filename
-      content_type = params[:blob][:data].content_type
-      params[:blob].delete('data')
+      file.write(c.body_str)
+      content_type = c.content_type
+      file.original_filename = c.url.split('/').last
+      file.content_type = c.content_type
+      file.rewind
+    end
+    data = file.read
+    content_type = file.content_type
 
-      params[:blob][:contributor_type], params[:blob][:contributor_id] = "User", current_user.id
+    params[:blob][:local_name] = file.original_filename
+    params[:blob].delete('data')
 
-      params[:blob][:license_id] = nil if params[:blob][:license_id] && params[:blob][:license_id] == "0"
-   
-      @blob = Blob.new(params[:blob])
-      @blob.content_blob = ContentBlob.new(:data => data)
+    params[:blob][:contributor_type], params[:blob][:contributor_id] = "User", current_user.id
 
-      @blob.content_type = ContentType.find_by_mime_type(content_type)
+    params[:blob][:license_id] = nil if params[:blob][:license_id] && params[:blob][:license_id] == "0"
+ 
+    @blob = Blob.new(params[:blob])
+    @blob.content_blob = ContentBlob.new(:data => data)
 
-      if @blob.content_type.nil?
-        @blob.content_type = ContentType.create(:user_id => current_user.id, :mime_type => content_type, :title => content_type)
-      end
+    @blob.content_type = ContentType.find_by_mime_type(content_type)
 
-      respond_to do |format|
-        if @blob.save
-          if params[:blob][:tag_list]
-            @blob.tags_user_id = current_user
-            @blob.tag_list = convert_tags_to_gem_format params[:blob][:tag_list]
-            @blob.update_tags
-          end
-          # update policy
-          @blob.contribution.update_attributes(params[:contribution])
-        
-          policy_err_msg = update_policy(@blob, params)
-        
-          update_credits(@blob, params)
-          update_attributions(@blob, params)
-        
-          if policy_err_msg.blank?
-            flash[:notice] = 'File was successfully created.'
-            format.html { redirect_to file_url(@blob) }
-          else
-            flash[:notice] = "File was successfully created. However some problems occurred, please see these below.</br></br><span style='color: red;'>" + policy_err_msg + "</span>"
-            format.html { redirect_to :controller => 'blobs', :id => @blob, :action => "edit" }
-          end
-        else
-          format.html { render :action => "new" }
+    if @blob.content_type.nil?
+      @blob.content_type = ContentType.create(:user_id => current_user.id, :mime_type => content_type, :title => content_type)
+    end
+
+    respond_to do |format|
+      if @blob.save
+        if params[:blob][:tag_list]
+          @blob.tags_user_id = current_user
+          @blob.tag_list = convert_tags_to_gem_format params[:blob][:tag_list]
+          @blob.update_tags
         end
+        # update policy
+        @blob.contribution.update_attributes(params[:contribution])
+      
+        policy_err_msg = update_policy(@blob, params)
+      
+        update_credits(@blob, params)
+        update_attributions(@blob, params)
+      
+        if policy_err_msg.blank?
+          flash[:notice] = 'File was successfully created.'
+          format.html { redirect_to file_url(@blob) }
+        else
+          flash[:notice] = "File was successfully created. However some problems occurred, please see these below.</br></br><span style='color: red;'>" + policy_err_msg + "</span>"
+          format.html { redirect_to :controller => 'blobs', :id => @blob, :action => "edit" }
+        end
+      else
+        format.html { render :action => "new" }
       end
     end
   end
