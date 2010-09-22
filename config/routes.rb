@@ -141,7 +141,7 @@ ActionController::Routing::Routes.draw do |map|
     :collection => { :search => :get }, 
     :member => { :download => :get,
                  :statistics => :get,
-                 :make_experiment => :get, #GET only for debugging, will be post later
+                 :make_experiment => :post,
                  :favourite => :post,
                  :favourite_delete => :delete,
                  :rate => :post, 
