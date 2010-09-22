@@ -8,7 +8,7 @@ require 'file_types_handler'
 class BlobsController < ApplicationController
   before_filter :login_required, :except => [:index, :show, :download, :named_download, :statistics, :search]
   
-  before_filter :find_blob_auth, :except => [:search, :index, :new, :create]
+  before_filter :find_blob_auth, :except => [:search, :index, :new, :create, :make_experiment]
   
   before_filter :initiliase_empty_objects_for_new_pages, :only => [:new, :create]
   before_filter :set_sharing_mode_variables, :only => [:show, :new, :create, :edit, :update]
@@ -95,6 +95,10 @@ class BlobsController < ApplicationController
   def edit
   end
   
+  # GET /files/1;make_experiment
+  def make_experiment
+  end
+
   # POST /blobs
   def create
 

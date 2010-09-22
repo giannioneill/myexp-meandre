@@ -97,6 +97,7 @@ ActionController::Routing::Routes.draw do |map|
   # For importing Meandre workflows
   map.connect 'workflows/import', :action=>'import', :controller=>'workflows'
   map.connect 'workflows/get_available', :action=>'get_available', :controller=>'workflows'
+  map.connect 'workflows/get_inputs', :action=>'get_inputs', :controller=>'workflows'
 
   # workflows (downloadable)
   map.resources :workflows, 
@@ -140,6 +141,7 @@ ActionController::Routing::Routes.draw do |map|
     :collection => { :search => :get }, 
     :member => { :download => :get,
                  :statistics => :get,
+                 :make_experiment => :get, #GET only for debugging, will be post later
                  :favourite => :post,
                  :favourite_delete => :delete,
                  :rate => :post, 

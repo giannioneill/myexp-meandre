@@ -10,7 +10,7 @@ class WorkflowsController < ApplicationController
   before_filter :login_required, :except => [:index, :show, :download, :named_download, :statistics, :launch, :search]
   
   before_filter :find_workflows_rss, :only => [:index]
-  before_filter :find_workflow_auth, :except => [:search, :index, :new, :create, :import, :get_available]
+  before_filter :find_workflow_auth, :except => [:search, :index, :new, :create, :import, :get_available, :get_inputs]
   
   before_filter :initiliase_empty_objects_for_new_pages, :only => [:new, :create, :new_version, :create_version, :import]
   before_filter :set_sharing_mode_variables, :only => [:show, :new, :create, :edit, :update, :import]
@@ -160,6 +160,14 @@ class WorkflowsController < ApplicationController
         }
       end
     end
+  end
+
+  #GET /workflows/1/inputs
+  def get_inputs
+    workflow = Workflow.find_by_id(params[:id])
+    p = workflow.processor_class.new(workflow.content_blob.data)
+    input_ports = p.get_workflow_model_input_ports
+    render :partial=>"workflows/#{workflow.processor_class.name.demodulize.underscore}/inputs", :locals=>{:inputs=>input_ports}
   end
 
   # GET /workflows

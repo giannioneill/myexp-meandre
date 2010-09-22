@@ -1,0 +1,26 @@
+<h3>
+Collection Details
+</h3>
+<ul>
+<% @handler.audio_files.each do |f| %>
+	<li><%=f%></li>
+<% end %>
+</ul>
+
+
+<h3>
+Make experiment from collection
+</h3>
+<% form_tag({:action=>'make_experiment'}) do%>
+  <center>
+  Workflow: <%=select_tag('workflow', options_for_select(@handler.valid_workflows.map{|x| [x.title, x.id]}))%>
+  <img style="display: none;" src="/images/spinner.gif" id="spinner" /><br/>
+  <%= observe_field :workflow, :url => { :controller=>'workflows', :action => :get_inputs},
+    :update => :input,
+	:before => "Element.show('spinner')",
+	:success => "Element.hide('spinner')",
+	:with => 'id'
+  %>
+  Input: <%=select_tag('input', [['Dummy',1]])%>
+  </center>
+<% end%>
