@@ -97,6 +97,14 @@ class BlobsController < ApplicationController
   
   # GET /files/1;make_experiment
   def make_experiment
+    #TODO: this should be done with the find_blob_auth method
+    @blob = Blob.find_by_id(params[:id])
+    e = Experiment.new
+    e.title = @blob.title+' Experiment'
+    e.contributor = current_user
+    e.created_at = DateTime.now
+    e.updated_at = DateTime.now
+    e.save
   end
 
   # POST /blobs
