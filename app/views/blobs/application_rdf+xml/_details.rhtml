@@ -13,7 +13,7 @@ Make experiment from collection
 </h3>
 <% form_tag({:action=>'make_experiment'}) do%>
   <center>
-  Workflow: <%=select_tag('workflow', options_for_select(@handler.valid_workflows.map{|x| [x.title, x.id]}))%>
+  Workflow: <%=select_tag('workflow', options_for_select(Workflow.meandre_flows.map{|x| [x.title, x.id]}))%>
   <img style="display: none;" src="/images/spinner.gif" id="spinner" /><br/>
   <%= observe_field :workflow, :url => { :controller=>'workflows', :action => :get_inputs},
     :update => :input,

@@ -60,9 +60,9 @@ module FileProcessors
 
     def valid_workflows
       workflows = []
-      Workflow.find(:all).each do |w|
-        workflows << w if w.processor_class == WorkflowProcessors::Meandre
-      end
+      #Workflow.find(:all).each do |w|
+        #workflows << w if w.processor_class == WorkflowProcessors::Meandre
+      #end
       workflows
     end
     
