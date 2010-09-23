@@ -100,30 +100,33 @@ class BlobsController < ApplicationController
     #TODO: this should be done with the find_blob_auth method
     @blob = Blob.find_by_id(params[:id])
     e = Experiment.new
-    e.title = @blob.title+' Experiment'
+    e.title = @blob.title+' Experiment - ' + DateTime.now.to_s
     e.contributor = current_user
     e.created_at = DateTime.now
     e.updated_at = DateTime.now
-    e.save
     
     workflow = Workflow.find_by_id(params[:workflow])
-    runner = Runners.find_by_id(params[:runner])
+    runner = Runner.find_by_id(params[:runner])
     
-    @blob.handler.audiofile.each do |f|
+    proc_class = FileTypesHandler.for_mime_type(@blob.content_type.mime_type)
+    processor = proc_class.new(@blob.content_blob.data)
+    processor.audio_files.each do |f|
       j = Job.new
-      j.title = e.title +"(#{f})"
+      j.title = workflow.title + "(#{f})"
       j.experiment = e
       j.user = current_user
       j.runnable = workflow
-      j.submitted_at = DateTime.now
+      j.runnable_version = 1
       j.created_at = DateTime.now
       j.updated_at = DateTime.now
       j.runner = runner
-      details = runner.job_type.new
-      details.save_inputs({params[:input]=>f})
-      details.save
-      r.save
+      j.details = runner.details.job_type.new
+      j.details.save_inputs({params[:input]=>f})
+      j.save!
     end
+    e.save!
+    flash[:notice] = 'Experiment Created'
+    redirect_to :action=>'show', :controller=>'experiments', :id=>e.id
   end
 
   # POST /blobs

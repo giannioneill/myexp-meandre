@@ -88,12 +88,6 @@ class MeandreJob < ActiveRecord::Base
     end
   end
   
-  def inputs_data=(data)
-    if job.allow_run?
-      self[:inputs_data] = data
-    end
-  end
-  
   def current_input_type(input_name)
     return 'none' if input_name.blank? or !self.inputs_data or self.inputs_data.empty?
     
@@ -181,15 +175,7 @@ class MeandreJob < ActiveRecord::Base
   end
   
   def save_inputs(params)
-    inputs_hash = { }
-    
-    input_ports = job.runnable.get_input_ports(@job.runnable_version)
-    
-    input_ports.each do |i|
-      inputs_hash[i.uri] = params[i.uri]
-    end
-    
-    self.inputs_data = inputs_hash
+    self.inputs_data = params
   end
 
   #in meandre properties (inputs) have defaults, this method
