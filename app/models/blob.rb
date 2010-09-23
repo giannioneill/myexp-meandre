@@ -67,4 +67,12 @@ class Blob < ActiveRecord::Base
   def named_download_url
     "#{Conf.base_uri}/files/#{id}/download/#{local_name}"
   end
+
+  def handler
+    @handler ||= lambda do 
+      handler_class = FileTypesHandler.for_mime_type(@blob.content_type.mime_type)
+      return nil if handler_class.nil?
+      handler_class.new(@blob.content_blob.data)
+    end
+  end
 end
