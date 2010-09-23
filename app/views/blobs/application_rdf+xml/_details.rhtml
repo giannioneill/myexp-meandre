@@ -22,6 +22,7 @@ Make experiment from collection
 	:with => 'id'
   %>
   Input: <%=select_tag('input', [['Dummy',1]])%><br/>
+  Runner: <%=select_tag('runner', options_for_select(Runner.find(:all).map{|x| [x.title, x.id]}))%><br/>
   <%=submit_tag 'Create Experiment'%>
   </center>
 <% end%>
