@@ -8,8 +8,9 @@ class ExperimentsController < ApplicationController
   before_filter :login_required
   
   before_filter :find_experiments, :only => [:index]
-  before_filter :find_experiment_auth, :only => [:show, :edit, :update, :destroy]
+  before_filter :find_experiment_auth, :only => [:show, :edit, :update, :destroy, :run_all]
   
+
   def index
     respond_to do |format|
       format.html # index.rhtml
@@ -85,6 +86,21 @@ class ExperimentsController < ApplicationController
       end
     end
   end
+
+  def run_all
+    errors = []
+    @experiment.jobs.each do |j|
+      unless j.details.submit_and_run!
+        errors << "#{j.title } failed to execute -- #{j.details.run_errors.join(",")}"
+      end
+    end
+    if errors.empty?
+      flash[:notice] = 'All jobs have been submitted successfully'
+    else
+      flash[:error] = errors.join("<br/>")
+    end
+    redirect_to :action=>'show'
+  end
   
 protected
 
@@ -122,6 +138,7 @@ protected
       error("Experiment not found or action not authorized", "is invalid (not authorized)")
     end
   end
+
   
 private
 

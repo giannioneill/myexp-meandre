@@ -45,8 +45,8 @@ ActionController::Routing::Routes.draw do |map|
   map.resources :runners, :member => { :verify => :get }
   
   # Experiments
-  map.resources :experiments,
-    :member => { :run_all => :post} do |e|
+  map.connect 'experiments/:id/run_all', :action=>'run_all', :controller=>'experiments'
+  map.resources :experiments do |e|
     # Experiments have nested Jobs
     e.resources :jobs, 
       :member => { :save_inputs => :post, 

@@ -18,33 +18,24 @@ class MeandreJob < ActiveRecord::Base
     run_errors.clear
     success = true
     
-    if allow_run?
+    if job.allow_run?
       
       begin
         
         # Only continue if runner service is valid
-        unless runner.details.service_valid?
-          run_errors << "The #{runner.details_type.humanize} is invalid or inaccessible. Please check the settings you have registered for this Runner."
+        unless job.runner.details.service_valid?
+          run_errors << "The #{job.runner.details_type.humanize} is invalid or inaccessible. Please check the settings you have registered for this Runner."
           success = false
         else        
-          # Ask the runner for the uri for the runnable object on the service
-          # (should submit the object to the service if required)
-          remote_runnable_uri = runner.details.get_remote_runnable_uri(self.runnable_type, self.runnable_id, self.runnable_version)
+          # Submit the job to the runner, which should begin to execute it, then get status
+          job.submitted_at = Time.now
+          job.job_uri = job.runner.details.submit_job(self.job)
+          self.save!
           
-          if remote_runnable_uri
-            # Submit the job to the runner, which should begin to execute it, then get status
-            self.submitted_at = Time.now
-            self.job_uri = runner.details.submit_job(remote_runnable_uri, self.inputs_uri)
-            self.save!
-            
-            # Get status
-            self.last_status = runner.details.get_job_status(self.job_uri)
-            self.last_status_at = Time.now
-            self.save!
-          else
-            run_errors << "Failed to submit the runnable item to the runner service. The item might not exist anymore or access may have been denied at the service."
-            success = false
-          end
+          # Get status
+          self.last_status = job.runner.details.get_job_status(job.job_uri)
+          self.last_status_at = Time.now
+          self.save!
         end
         
       rescue Exception => ex
