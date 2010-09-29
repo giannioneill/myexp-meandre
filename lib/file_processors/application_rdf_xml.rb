@@ -15,6 +15,10 @@ module FileProcessors
     def self.can_infer_metadata?
       false
     end
+
+    def self.is_valid_file?(file_data)
+      return true #TODO: implement this
+    end
     
 
     # Begin Object Initializer

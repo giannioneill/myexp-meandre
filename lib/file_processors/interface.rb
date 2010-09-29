@@ -15,6 +15,9 @@ module FileProcessors
       false
     end
     
+    def self.is_valid_file?
+      false
+    end
 
     # Begin Object Initializer
 
@@ -26,6 +29,7 @@ module FileProcessors
     
     
     # Begin Instance Methods
+
     
 
     # End Instance Methods
