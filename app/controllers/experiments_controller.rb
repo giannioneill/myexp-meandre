@@ -3,6 +3,8 @@
 # Copyright (c) 2008 University of Manchester and the University of Southampton.
 # See license.txt for details.
 
+require 'delayed_job'
+
 class ExperimentsController < ApplicationController
   
   before_filter :login_required
@@ -90,9 +92,7 @@ class ExperimentsController < ApplicationController
   def run_all
     errors = []
     @experiment.jobs.each do |j|
-      unless j.details.submit_and_run!
-        errors << "#{j.title } failed to execute -- #{j.details.run_errors.join(",")}"
-      end
+      Delayed::Job.enqueue(@j)
     end
     if errors.empty?
       flash[:notice] = 'All jobs have been submitted successfully'

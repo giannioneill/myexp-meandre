@@ -3,6 +3,8 @@
 # Copyright (c) 2008 University of Manchester and the University of Southampton.
 # See license.txt for details.
 
+require 'delayed_job'
+
 class JobsController < ApplicationController
   
   before_filter :login_required
@@ -194,7 +196,7 @@ class JobsController < ApplicationController
     end
     
     if success
-      success = @job.submit_and_run!
+      Delayed::Job.enqueue(@job)
     end
     
     unless success

@@ -194,6 +194,10 @@ class Job < ActiveRecord::Base
     self.details_type = details.class.to_s
     self.details_id = details.id
   end
+
+  def perform
+    details.submit_and_run! 
+  end
   
 protected
   
