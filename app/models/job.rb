@@ -3,6 +3,8 @@
 # Copyright (c) 2008 University of Manchester and the University of Southampton.
 # See license.txt for details.
 
+require 'delayed_job'
+
 class Job < ActiveRecord::Base
   
   @details = nil
@@ -197,6 +199,14 @@ class Job < ActiveRecord::Base
 
   def perform
     details.submit_and_run! 
+  end
+
+  def queue
+    Delayed::Job.enqueue(self)
+    self.last_status = 'Queued'
+    self.last_status_at = Time.now
+    self.submitted_at = Time.now
+    self.save!
   end
   
 protected

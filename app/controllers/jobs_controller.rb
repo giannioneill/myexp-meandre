@@ -196,7 +196,7 @@ class JobsController < ApplicationController
     end
     
     if success
-      Delayed::Job.enqueue(@job)
+      @job.queue
     end
     
     unless success
