@@ -221,7 +221,7 @@ class JobsController < ApplicationController
     @stop_timer = (@job.allow_run? or @job.completed?)
     logger.debug("Stop timer? - #{@stop_timer}")
     respond_to do |format|
-      format.html { render :partial => "#{ActionView::Helpers::JobHelper.get_details_dir(@job)}/status_info", :locals => { :job => @job, :experiment => @experiment } }
+      format.html { render :partial => "jobs/#{@job.details_type.underscore}/status_info", :locals => { :job => @job, :experiment => @experiment } }
     end
   end
   
