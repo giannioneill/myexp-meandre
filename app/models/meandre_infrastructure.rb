@@ -23,7 +23,13 @@ class MeandreInfrastructure < ActiveRecord::Base
   
  
   def update_details(details)
-    self.url = details[:url] if details[:url]
+    if details[:url]
+      #normalise urls
+      unless details[:url] =~ /\/$/
+        details[:url] += '/'
+      end
+      self.url = details[:url]
+    end
     self.username = details[:username] if details[:username]
     self.password = details[:password] if details[:password]
   end
@@ -110,7 +116,6 @@ class MeandreInfrastructure < ActiveRecord::Base
   end
 
   def submit_job(job) 
-    #FIXME: this should be versioned
     workflow = Workflow.find(:first, :conditions => {:id => job.runnable_id})
     remote_uri = get_remote_runnable_uri(workflow)
     c = Curl::Easy.new("#{url}services/auxiliar/run_tuned_flow.txt")
