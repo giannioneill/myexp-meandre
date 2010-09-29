@@ -28,10 +28,17 @@ class FileTypesHandler
     if @@mime_type_map.nil?
       @@mime_type_map = {}
       processor_classes.each do |c|
-        @@mime_type_map[c.mime_type] = c
+        @@mime_type_map[c.mime_type] = [] if @@mime_type_map[c.mime_type].nil?
+        @@mime_type_map[c.mime_type] << c
       end
     end
     @@mime_type_map[type]
+  end
+
+  def self.for_file(type, file_data)
+    self.for_mime_type(type).each do |c|
+      return c if c.recognises_file?(file_data)
+    end
   end
 
 protected

@@ -16,7 +16,7 @@ module FileProcessors
       false
     end
 
-    def self.is_valid_file?(file_data)
+    def self.recognises_file?(file_data)
       return true #TODO: implement this
     end
     
