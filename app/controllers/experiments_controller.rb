@@ -92,7 +92,7 @@ class ExperimentsController < ApplicationController
   def run_all
     errors = []
     @experiment.jobs.each do |j|
-      Delayed::Job.enqueue(@j)
+      Delayed::Job.enqueue(j)
     end
     if errors.empty?
       flash[:notice] = 'All jobs have been submitted successfully'
