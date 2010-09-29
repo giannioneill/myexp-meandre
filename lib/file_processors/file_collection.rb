@@ -5,7 +5,7 @@
 require 'rdf/redland'
 
 module FileProcessors
-  class ApplicationRdfXml < Interface
+  class FileCollection < Interface
     
     #MIME-type handled by this class
     def self.mime_type
