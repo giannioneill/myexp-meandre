@@ -198,7 +198,7 @@ class Job < ActiveRecord::Base
   end
 
   def perform
-    details.submit_and_run! 
+    self.submit_and_run! 
   end
 
   def queue
