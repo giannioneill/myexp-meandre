@@ -237,8 +237,8 @@ class WorkflowsController < ApplicationController
     runner = Runner.find_by_id(runner_id)
     c = Curl::Easy.new("#{runner.details.url}services/repository/list_flows.json")
     c.userpwd = 'admin:admin'
-    c.perform
     begin
+      c.perform
       @results = JSON.parse(c.body_str)
     rescue
       @results = []
